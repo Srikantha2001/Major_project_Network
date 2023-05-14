@@ -1,0 +1,17 @@
+# Hospital - Management Organization .
+
+# Presently considering 4 peers as default
+
+PeerOrgs:
+
+  - Name: MngOrg1
+    Domain: mngorg1.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 4
+      SANS:
+        - localhost
+      
+    Users:
+      Count: 1

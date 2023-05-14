@@ -1,0 +1,11 @@
+
+OrdererOrgs:
+  
+  - Name: PatDocOrderer
+    Domain: example2.com
+    EnableNodeOUs: true
+    
+    Specs:
+      - Hostname: patdocorderer
+        SANS:
+          - localhost

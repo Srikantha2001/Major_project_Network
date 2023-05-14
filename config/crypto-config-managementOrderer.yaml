@@ -1,0 +1,17 @@
+# Orderer Nodes for the organization purpose
+
+# The main task of this node is to provide ordering service for 
+# the management blockchain that mainly stores the current set of active doctors in the hospital
+
+
+OrdererOrgs:
+  
+  - Name: MngOrderer
+    Domain: example.com
+    EnableNodeOUs: true
+    
+    Specs:
+      - Hostname: mngorderer
+        SANS:
+          - localhost
+
