@@ -1,9 +1,7 @@
 
 Organizations:
-  
-  # Orderer1Org => management org orderer 
 
-  - &Orderer1Org
+  - &OrdererOrg
         
     Name: Orderer1Org
 
@@ -23,45 +21,20 @@ Organizations:
         Rule: "OR('Orderer1MSP.admin')"
 
     OrdererEndpoints:
-      - mngorderer.example.com:7050
+      - orderer.example.com:7050
 
-
-  # # Orderer2Org => Doctor-patient Orderer
-
-  # - &Orderer2Org
-        
-  #   Name: Orderer2Org
-
-  #   ID: Orderer2MSP
-
-  #   MSPDir: ../crypto-config/ordererOrganizations/example2.com/msp
-
-  #   Policies:
-  #     Readers:
-  #       Type: Signature
-  #       Rule: "OR('Orderer2MSP.member')"
-  #     Writers:
-  #       Type: Signature
-  #       Rule: "OR('Orderer2MSP.member')"
-  #     Admins:
-  #       Type: Signature
-  #       Rule: "OR('Orderer2MSP.admin')"
-
-  #   OrdererEndpoints:
-  #     - patdocorderer.example2.com:7051
-
-  - &MngOrg1
+  - &Org1
       
-    Name: MngOrg1MSP
+    Name: Org1MSP
 
-    ID: MngOrg1MSP
+    ID: Org1MSP
 
-    MSPDir: ../crypto-config/peerOrganizations/mngorg1.example.com/msp
+    MSPDir: ../crypto-config/peerOrganizations/org1.example.com/msp
 
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('MngOrg1MSP.admin', 'MngOrg1MSP.peer', 'MngOrg1MSP.client')"
+        Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
       Writers:
         Type: Signature
         Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
@@ -74,57 +47,7 @@ Organizations:
 
       Endorsement:
         Type: Signature
-        Rule: "OutOf(3,'MngOrg1MSP.peer','MngOrg1MSP.peer','MngOrg1MSP.peer','MngOrg1MSP.peer')"
-   
-  # - &DocOrg1
-      
-  #     Name: DocOrg1MSP
-
-  #     ID: DocOrg1MSP
-
-  #     MSPDir: ../crypto-config/peerOrganizations/docorg1.example2.com/msp
-
-  #     Policies:
-  #       Readers:
-  #         Type: Signature
-  #         Rule: "OR('DocOrg1MSP.admin', 'DocOrg1MSP.peer', 'DocOrg1MSP.client')"
-  #       Writers:
-  #         Type: Signature
-  #         Rule: "OR('DocOrg1MSP.admin', 'DocOrg1MSP.client')"
-  #       Admins:
-  #         Type: Signature
-  #         Rule: "OR('DocOrg1MSP.admin')"
-  #       Endorsement:
-  #         Type: Signature
-  #         Rule: "OR('DocOrg1MSP.client')"
-
-  # - &PatOrg1
-      
-  #     Name: PatOrg1MSP
-
-  #     ID: PatOrg1MSP
-
-  #     MSPDir: ../crypto-config/peerOrganizations/patorg1.example3.com/msp
-
-  #     Policies:
-
-  #       # Reading of Data of patient permission is given to the doctor who is the peer of that patient ( doctor who is handling that patient)
-
-  #       Readers:
-  #         Type: Signature
-  #         Rule: "OR('PatOrg1MSP.admin', 'PatOrg1MSP.peer', 'PatOrg1MSP.client', 'DocOrg1MSP.peer')"
-  #       Writers:
-  #         Type: Signature
-  #         Rule: "OR('PatOrg1MSP.admin', 'PatOrg1MSP.client')"
-  #       Admins:
-  #         Type: Signature
-  #         Rule: "OR('PatOrg1MSP.admin')"
-
-  #       # For Endorsement, both the patient and the Doctor has to validate that data from the sensor.
-
-  #       Endorsement:
-  #         Type: Signature
-  #         Rule: "AND('PatOrg1MSP.client','DocOrg1MSP.peer')"
+        Rule: "OutOf(3,'Org1MSP.peer','Org1MSP.peer','Org1MSP.peer','Org1MSP.peer')"
   
 Capabilities:
   
@@ -166,22 +89,16 @@ Orderer: &OrdererDefaults
   OrdererType: etcdraft
     
   Addresses:
-    - mngorderer.example.com:7050
-    # - patdocorderer.example2.com:7051
+    - orderer.example.com:7050
 
   EtcdRaft:
     
     Consenters:
   
-      - Host: mngorderer.example.com
+      - Host: orderer.example.com
         Port: 7050
-        ServerTLSCert: ../crypto-config/ordererOrganizations/example.com/orderers/mngorderer.example.com/tls/server.crt
-        ClientTLSCert: ../crypto-config/ordererOrganizations/example.com/orderers/mngorderer.example.com/tls/server.crt
-      
-      # - Host: patdocorderer.example2.com
-      #   Port: 7051
-      #   ServerTLSCert: ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/tls/server.crt
-      #   ClientTLSCert: ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/tls/server.crt
+        ServerTLSCert: ../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+        ClientTLSCert: ../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
 
   BatchTimeout: 2s
 
@@ -226,18 +143,25 @@ Channel: &ChannelDefaults
 
 Profiles:
 
+  BasicChannel:
+    Consortium: SampleConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Org1
+      Capabilities:
+        <<: *ApplicationCapabilities
+
   ManagementArtifactsGenesis:
     <<: *ChannelDefaults
     Orderer:
       <<: *OrdererDefaults
       Organizations:
-        - *Orderer1Org
-        # - *Orderer2Org
+        - *OrdererOrg
       Capabilities: *OrdererCapabilities
     Application:
       <<: *ApplicationDefaults
       Organizations:
-        - *MngOrg1
-        # - *DocOrg1
-        # - *PatOrg1
+        - *Org1
       Capabilities: *ApplicationCapabilities

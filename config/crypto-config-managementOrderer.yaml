@@ -6,12 +6,12 @@
 
 OrdererOrgs:
   
-  - Name: MngOrderer
+  - Name: Orderer
     Domain: example.com
     EnableNodeOUs: true
     
     Specs:
-      - Hostname: mngorderer
+      - Hostname: orderer
         SANS:
           - localhost
 

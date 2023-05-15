@@ -3,16 +3,15 @@
 # 1. CERTIFICATE AUTHORITY for each ORG
 # 2. Orderers and peers variables
 # 3. CouchDB instances
-
 version: '3.7'
 
 volumes:
-  mngorderer.example.com:
+  orderer.example.com:
   # patdocorderer.example2.com:
-  peer0.mngorg1.example.com:
-  peer1.mngorg1.example.com:
-  peer2.mngorg1.example.com:
-  peer3.mngorg1.example.com:
+  peer0.org1.example.com:
+  peer1.org1.example.com:
+  peer2.org1.example.com:
+  peer3.org1.example.com:
   # peer0.docorg1.example2.com:
   # peer0.patorg1.example3.com:
 
@@ -24,153 +23,67 @@ services:
 
 # ORDERER SERVICES
 
-  mngorderer.example.com:
-    container_name: mngorderer.example.com
-    image: hyperledger/fabric-orderer:latest
+  orderer.example.com:
+    container_name: orderer.example.com
+    image: hyperledger/fabric-orderer:2.2
     labels:
       service: hyperledger-fabric
     environment:
-      - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_LOGGING_SPEC=DEBUG
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_LISTENPORT=7050
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/mngorderer/msp
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
       - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/mngorderer/tls/server.key
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/mngorderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/mngorderer/tls/ca.crt]
-      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/mngorderer/tls/server.crt
-      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/mngorderer/tls/server.key
-      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/mngorderer/tls/ca.crt]
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
       - ORDERER_CHANNELPARTICIPATION_ENABLED=true
-      - ORDERER_OPERATIONS_LISTENADDRESS=mngorderer.example.com:9443
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.example.com:9443
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-        - ../crypto-config/ordererOrganizations/example.com/orderers/mngorderer.example.com/msp:/var/hyperledger/mngorderer/msp
-        - ../crypto-config/ordererOrganizations/example.com/orderers/mngorderer.example.com/tls/:/var/hyperledger/mngorderer/tls
-        - mngorderer.example.com:/var/hyperledger/production/mngorderer
+        - ../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.example.com:/var/hyperledger/production/orderer
     ports:
       - 7100:7050
       - 9600:9443
     networks:
       - test
   
-  # patdocorderer.example2.com:
-
-  #   container_name: patdocorderer.example2.com
-  #   image: hyperledger/fabric-orderer:latest
-  #   labels:
-  #     service: hyperledger-fabric
-  #   environment:
-  #     - FABRIC_LOGGING_SPEC=INFO
-  #     - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-  #     - ORDERER_GENERAL_LISTENPORT=7051
-  #     - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-  #     - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/patdocorderer/msp
-  #     # enabled TLS
-  #     - ORDERER_GENERAL_TLS_ENABLED=true
-  #     - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/patdocorderer/tls/server.key
-  #     - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/patdocorderer/tls/server.crt
-  #     - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/patdocorderer/tls/ca.crt]
-  #     - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/patdocorderer/tls/server.crt
-  #     - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/patdocorderer/tls/server.key
-  #     - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/patdocorderer/tls/ca.crt]
-  #     - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
-  #     - ORDERER_CHANNELPARTICIPATION_ENABLED=true
-  #     - ORDERER_OPERATIONS_LISTENADDRESS=patdocorderer.example2.com:9443
-  #     - ORDERER_METRICS_PROVIDER=prometheus
-  #   working_dir: /root
-  #   command: orderer
-  #   volumes:
-  #       - ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/msp:/var/hyperledger/patdocorderer/msp
-  #       - ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/tls/:/var/hyperledger/patdocorderer/tls
-  #       - patdocorderer.example2.com:/var/hyperledger/production/patdocorderer
-  #   ports:
-  #     - 7200:7051
-  #     - 9800:9443
-  #   networks:
-  #     - test
-
-
-# CERTIFICATE AUTHORITY
-
-  ca-mngorg1:
+  ca-org1:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-      - FABRIC_CA_SERVER_CA_NAME=ca.mngorg1.example.com
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-mngconfig/ca.mngorg1.example.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-mngconfig/priv_sk
+      - FABRIC_CA_SERVER_CA_NAME=ca.org1.example.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
       - FABRIC_CA_SERVER_TLS_ENABLED=true
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-mngtls/tlsca.mngorg1.example.com-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-mngtls/priv_sk
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-tls/tlsca.org1.example.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-tls/priv_sk
       - FABRIC_CA_SERVER_PORT=7054
     ports:
       - "7054:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../crypto-config/peerOrganizations/mngorg1.example.com/ca/:/etc/hyperledger/fabric-ca-server-mngconfig
-      - ../crypto-config/peerOrganizations/mngorg1.example.com/tlsca/:/etc/hyperledger/fabric-ca-server-mngtls
-    container_name: ca.mngorg1.example.com
+      - ../crypto-config/peerOrganizations/org1.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
+      - ../crypto-config/peerOrganizations/org1.example.com/tlsca/:/etc/hyperledger/fabric-ca-server-tls
+    container_name: ca.org1.example.com
     networks:
       - test
 
-  # ca-docgorg1:
-  #   image: hyperledger/fabric-ca:latest
-  #   labels:
-  #     service: hyperledger-fabric
-  #   environment:
-  #     - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-  #     - FABRIC_CA_SERVER_CA_NAME=ca.docorg1.example2.com
-  #     - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-docconfig/ca.docorg1.example2.com-cert.pem
-  #     - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-docconfig/priv_sk
-  #     - FABRIC_CA_SERVER_TLS_ENABLED=true
-  #     - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-doctls/tlsca.docorg1.example2.com-cert.pem
-  #     - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-doctls/priv_sk
-  #     - FABRIC_CA_SERVER_PORT=7055
-  #   ports:
-  #     - "7055:7055"
-  #   command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
-  #   volumes:
-  #     - ../crypto-config/peerOrganizations/docorg1.example2.com/ca/:/etc/hyperledger/fabric-ca-server-docconfig
-  #     - ../crypto-config/peerOrganizations/docorg1.example2.com/tlsca/:/etc/hyperledger/fabric-ca-server-doctls
-  #   container_name: ca.docorg1.example2.com
-  #   networks:
-  #     - test
-
-  # ca-patorg1:
-  #   image: hyperledger/fabric-ca:latest
-  #   labels:
-  #     service: hyperledger-fabric
-  #   environment:
-  #     - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-  #     - FABRIC_CA_SERVER_CA_NAME=ca.patorg1.example3.com
-  #     - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-patconfig/ca.patorg1.example3.com-cert.pem
-  #     - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-patconfig/priv_sk
-  #     - FABRIC_CA_SERVER_TLS_ENABLED=true
-  #     - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-pattls/tlsca.patorg1.example3.com-cert.pem
-  #     - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-pattls/priv_sk
-  #     - FABRIC_CA_SERVER_PORT=7054
-  #   ports:
-  #     - "7056:7056"
-  #   command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
-  #   volumes:
-  #     - ../crypto-config/peerOrganizations/patorg1.example3.com/ca/:/etc/hyperledger/fabric-ca-server-patconfig
-  #     - ../crypto-config/peerOrganizations/patorg1.example3.com/tlsca/:/etc/hyperledger/fabric-ca-server-pattls
-  #   container_name: ca.patorg1.example3.com
-  #   networks:
-  #     - test
-
-# PEERS
-
-  peer0.mngorg1.example.com:
-    container_name: peer0.mngorg1.example.com
+  peer0.org1.example.com:
+    container_name: peer0.org1.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -186,39 +99,39 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       
       # Peer specific variables
-      - CORE_PEER_ID=peer0.mngorg1.example.com
-      - CORE_PEER_ADDRESS=peer0.mngorg1.example.com:7051
+      - CORE_PEER_ID=peer0.org1.example.com
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.mngorg1.example.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.example.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.mngorg1.example.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.mngorg1.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
 
-      - CORE_PEER_LOCALMSPID=MngOrg1MSP
+      - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.mngorg1.example.com:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.example.com:9444
       - CORE_METRICS_PROVIDER=prometheus
-      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0mngorg1"}
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
     volumes:
-        - ../crypto-config/peerOrganizations/mngorg1.example.com/peers/peer0.mngorg1.example.com:/etc/hyperledger/fabric
-        - peer0.mngorg1.example.com:/var/hyperledger/production
+        - ../crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com:/etc/hyperledger/fabric
+        - peer0.org1.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     depends_on:
-      - couchdbmng0
+      - couchdb0
     ports:
       - 8000:7051
       - 12000:9444
     networks:
       - test
 
-  peer1.mngorg1.example.com:
-    container_name: peer1.mngorg1.example.com
+  peer1.org1.example.com:
+    container_name: peer1.org1.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -234,39 +147,39 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       
       # Peer specific variables
-      - CORE_PEER_ID=peer1.mngorg1.example.com
-      - CORE_PEER_ADDRESS=peer1.mngorg1.example.com:7051
+      - CORE_PEER_ID=peer1.org1.example.com
+      - CORE_PEER_ADDRESS=peer1.org1.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer1.mngorg1.example.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org1.example.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.mngorg1.example.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.mngorg1.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org1.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.example.com:7051
 
-      - CORE_PEER_LOCALMSPID=MngOrg1MSP
+      - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer1.mngorg1.example.com:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer1.org1.example.com:9444
       - CORE_METRICS_PROVIDER=prometheus
-      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1mngorg1"}
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
     volumes:
-        - ../crypto-config/peerOrganizations/mngorg1.example.com/peers/peer1.mngorg1.example.com:/etc/hyperledger/fabric
-        - peer1.mngorg1.example.com:/var/hyperledger/production
+        - ../crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com:/etc/hyperledger/fabric
+        - peer1.org1.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     depends_on:
-      - couchdbmng1
+      - couchdb1
     ports:
       - 8001:7051
       - 12001:9444
     networks:
       - test
 
-  peer2.mngorg1.example.com:
-    container_name: peer2.mngorg1.example.com
+  peer2.org1.example.com:
+    container_name: peer2.org1.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -281,39 +194,39 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       
       # Peer specific variables
-      - CORE_PEER_ID=peer2.mngorg1.example.com
-      - CORE_PEER_ADDRESS=peer2.mngorg1.example.com:7051
+      - CORE_PEER_ID=peer2.org1.example.com
+      - CORE_PEER_ADDRESS=peer2.org1.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer2.mngorg1.example.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer2.org1.example.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.mngorg1.example.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.mngorg1.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.org1.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.org1.example.com:7051
 
-      - CORE_PEER_LOCALMSPID=MngOrg1MSP
+      - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer2.mngorg1.example.com:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer2.org1.example.com:9444
       - CORE_METRICS_PROVIDER=prometheus
-      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer2mngorg1"}
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer2org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
     volumes:
-        - ../crypto-config/peerOrganizations/mngorg1.example.com/peers/peer2.mngorg1.example.com:/etc/hyperledger/fabric
-        - peer2.mngorg1.example.com:/var/hyperledger/production
+        - ../crypto-config/peerOrganizations/org1.example.com/peers/peer2.org1.example.com:/etc/hyperledger/fabric
+        - peer2.org1.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     depends_on:
-      - couchdbmng2
+      - couchdb2
     ports:
       - 8002:7051
       - 12003:9444
     networks:
       - test
 
-  peer3.mngorg1.example.com:
-    container_name: peer3.mngorg1.example.com
+  peer3.org1.example.com:
+    container_name: peer3.org1.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -329,134 +242,42 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       
       # Peer specific variables
-      - CORE_PEER_ID=peer3.mngorg1.example.com
-      - CORE_PEER_ADDRESS=peer3.mngorg1.example.com:7051
+      - CORE_PEER_ID=peer3.org1.example.com
+      - CORE_PEER_ADDRESS=peer3.org1.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer3.mngorg1.example.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer3.org1.example.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer3.mngorg1.example.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer3.mngorg1.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer3.org1.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer3.org1.example.com:7051
 
-      - CORE_PEER_LOCALMSPID=MngOrg1MSP
+      - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer3.mngorg1.example.com:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer3.org1.example.com:9444
       - CORE_METRICS_PROVIDER=prometheus
-      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer3mngorg1"}
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer3org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
     volumes:
-        - ../crypto-config/peerOrganizations/mngorg1.example.com/peers/peer3.mngorg1.example.com:/etc/hyperledger/fabric
-        - peer3.mngorg1.example.com:/var/hyperledger/production
+        - ../crypto-config/peerOrganizations/org1.example.com/peers/peer3.org1.example.com:/etc/hyperledger/fabric
+        - peer3.org1.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     depends_on:
-      - couchdbmng3
+      - couchdb3
     ports:
       - 8003:7051
       - 12004:9444
     networks:
       - test
 
-  # peer0.docorg1.example2.com:
-  #   container_name: peer0.docorg1.example2.com
-  #   image: hyperledger/fabric-peer:latest
-  #   labels:
-  #     service: hyperledger-fabric
-  #   environment:
-  #     # General Varialbes
-  #     # - FABRIC_LOGGING_SPEC=INFO
-  #     - FABRIC_LOGGING_SPEC=DEBUG
-  #     - CORE_PEER_TLS_ENABLED=true
-  #     - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-  #     - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-  #     - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      
-  #     # Peer specific variables
-  #     - CORE_PEER_ID=peer0.docorg1.example2.com
-  #     - CORE_PEER_ADDRESS=peer0.docorg1.example2.com:7051
-  #     - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-  #     - CORE_PEER_CHAINCODEADDRESS=peer0.docorg1.example2.com:7052
-  #     - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-  #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.docorg1.example2.com:7051
-  #     - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.docorg1.example2.com:7051
-
-  #     - CORE_PEER_LOCALMSPID=DocOrg1MSP
-  #     - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-  #     - CORE_OPERATIONS_LISTENADDRESS=peer0.docorg1.example2.com:9444
-  #     - CORE_METRICS_PROVIDER=prometheus
-  #     - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0docorg1"}
-  #     - CORE_CHAINCODE_EXECUTETIMEOUT=300s
-  #     - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
-  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
-  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
-  #   volumes:
-  #       - ../crypto-config/peerOrganizations/docorg1.example2.com/peers/peer0.docorg1.example2.com:/etc/hyperledger/fabric
-  #       - peer0.docorg1.example2.com:/var/hyperledger/production
-  #   working_dir: /root
-  #   command: peer node start
-  #   depends_on:
-  #     - couchdbdoc0
-  #   ports:
-  #     - 8500:7051
-  #     - 12005:9444
-  #   networks:
-  #     - test
-
-  # peer0.patorg1.example3.com:
-  #   container_name: peer0.patorg1.33.com
-  #   image: hyperledger/fabric-peer:latest
-  #   labels:
-  #     service: hyperledger-fabric
-  #   environment:
-  #     # General Variables
-
-  #     # - FABRIC_LOGGING_SPEC=INFO
-  #     - FABRIC_LOGGING_SPEC=DEBUG
-  #     - CORE_PEER_TLS_ENABLED=true
-  #     - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-  #     - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-  #     - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      
-  #     # Peer specific variables
-  #     - CORE_PEER_ID=peer0.patorg1.example3.com
-  #     - CORE_PEER_ADDRESS=peer0.patorg1.example3.com:7051
-  #     - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-  #     - CORE_PEER_CHAINCODEADDRESS=peer0.patorg1.example3.com:7052
-  #     - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-  #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.patorg1.example3.com:7051
-  #     - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.patorg1.example3.com:7051
-
-  #     - CORE_PEER_LOCALMSPID=PatOrg1MSP
-  #     - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-  #     - CORE_OPERATIONS_LISTENADDRESS=peer0.patorg1.example3.com:9444
-  #     - CORE_METRICS_PROVIDER=prometheus
-  #     - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0patorg1"}
-  #     - CORE_CHAINCODE_EXECUTETIMEOUT=300s
-  #     - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
-  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
-  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
-  #   volumes:
-  #       - ../crypto-config/peerOrganizations/patorg1.example3.com/peers/peer0.patorg1.example3.com:/etc/hyperledger/fabric
-  #       - peer0.patorg1.example3.com:/var/hyperledger/production
-  #   working_dir: /root
-  #   command: peer node start
-  #   depends_on:
-  #     - couchdbpat0
-  #   ports:
-  #     - 9000:7051
-  #     - 12006:9444
-  #   networks:
-  #     - test
 
 # COUCH_DB
 
-  couchdbmng0:
-    container_name: couchdbmng0
+  couchdb0:
+    container_name: couchdb0
     image: couchdb:3.3.2
     labels:
       service: hyperledger-fabric
@@ -470,8 +291,8 @@ services:
     networks:
       - test
 
-  couchdbmng1:
-    container_name: couchdbmng1
+  couchdb1:
+    container_name: couchdb1
     image: couchdb:3.3.2
     labels:
       service: hyperledger-fabric
@@ -485,8 +306,8 @@ services:
     networks:
       - test
 
-  couchdbmng2:
-    container_name: couchdbmng2
+  couchdb2:
+    container_name: couchdb2
     image: couchdb:3.3.2
     labels:
       service: hyperledger-fabric
@@ -500,8 +321,8 @@ services:
     networks:
       - test
 
-  couchdbmng3:
-    container_name: couchdbmng3
+  couchdb3:
+    container_name: couchdb3
     image: couchdb:3.3.2
     labels:
       service: hyperledger-fabric
@@ -515,32 +336,4 @@ services:
     networks:
       - test
 
-  # couchdbdoc0:
-  #   container_name: couchdbdoc0
-  #   image: couchdb:3.3.2
-  #   labels:
-  #     service: hyperledger-fabric
-
-  #   environment:
-  #     - COUCHDB_USER=admin
-  #     - COUCHDB_PASSWORD=password
-    
-  #   ports:
-  #     - "10100:5984"
-  #   networks:
-  #     - test
-
-  # couchdbpat0:
-  #   container_name: couchdbpat0
-  #   image: couchdb:3.3.2
-  #   labels:
-  #     service: hyperledger-fabric
-
-  #   environment:
-  #     - COUCHDB_USER=admin
-  #     - COUCHDB_PASSWORD=password
-    
-  #   ports:
-  #     - "10200:5984"
-  #   networks:
-  #     - test
+  

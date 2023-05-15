@@ -4,8 +4,8 @@
 
 PeerOrgs:
 
-  - Name: MngOrg1
-    Domain: mngorg1.example.com
+  - Name: Org1
+    Domain: org1.example.com
     EnableNodeOUs: true
 
     Template:
