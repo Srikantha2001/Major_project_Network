@@ -26,29 +26,29 @@ Organizations:
       - mngorderer.example.com:7050
 
 
-  # Orderer2Org => Doctor-patient Orderer
+  # # Orderer2Org => Doctor-patient Orderer
 
-  - &Orderer2Org
+  # - &Orderer2Org
         
-    Name: Orderer2Org
+  #   Name: Orderer2Org
 
-    ID: Orderer2MSP
+  #   ID: Orderer2MSP
 
-    MSPDir: ../crypto-config/ordererOrganizations/example2.com/msp
+  #   MSPDir: ../crypto-config/ordererOrganizations/example2.com/msp
 
-    Policies:
-      Readers:
-        Type: Signature
-        Rule: "OR('Orderer2MSP.member')"
-      Writers:
-        Type: Signature
-        Rule: "OR('Orderer2MSP.member')"
-      Admins:
-        Type: Signature
-        Rule: "OR('Orderer2MSP.admin')"
+  #   Policies:
+  #     Readers:
+  #       Type: Signature
+  #       Rule: "OR('Orderer2MSP.member')"
+  #     Writers:
+  #       Type: Signature
+  #       Rule: "OR('Orderer2MSP.member')"
+  #     Admins:
+  #       Type: Signature
+  #       Rule: "OR('Orderer2MSP.admin')"
 
-    OrdererEndpoints:
-      - patdocorderer.example2.com:7051
+  #   OrdererEndpoints:
+  #     - patdocorderer.example2.com:7051
 
   - &MngOrg1
       
@@ -76,58 +76,55 @@ Organizations:
         Type: Signature
         Rule: "OutOf(3,'MngOrg1MSP.peer','MngOrg1MSP.peer','MngOrg1MSP.peer','MngOrg1MSP.peer')"
    
-  - &DocOrg1
+  # - &DocOrg1
       
-      Name: DocOrg1MSP
+  #     Name: DocOrg1MSP
 
-      ID: DocOrg1MSP
+  #     ID: DocOrg1MSP
 
-      MSPDir: ../crypto-config/peerOrganizations/docorg1.example2.com/msp
+  #     MSPDir: ../crypto-config/peerOrganizations/docorg1.example2.com/msp
 
-      Policies:
-        Readers:
-          Type: Signature
-          Rule: "OR('DocOrg1MSP.admin', 'DocOrg1MSP.peer', 'DocOrg1MSP.client')"
-        Writers:
-          Type: Signature
-          Rule: "OR('DocOrg1MSP.admin', 'DocOrg1MSP.client')"
-        Admins:
-          Type: Signature
-          Rule: "OR('DocOrg1MSP.admin')"
-        Endorsement:
-          Type: Signature
-          Rule: "OR('DocOrg1MSP.client')"
+  #     Policies:
+  #       Readers:
+  #         Type: Signature
+  #         Rule: "OR('DocOrg1MSP.admin', 'DocOrg1MSP.peer', 'DocOrg1MSP.client')"
+  #       Writers:
+  #         Type: Signature
+  #         Rule: "OR('DocOrg1MSP.admin', 'DocOrg1MSP.client')"
+  #       Admins:
+  #         Type: Signature
+  #         Rule: "OR('DocOrg1MSP.admin')"
+  #       Endorsement:
+  #         Type: Signature
+  #         Rule: "OR('DocOrg1MSP.client')"
 
-  - &PatOrg1
+  # - &PatOrg1
       
-      Name: PatOrg1MSP
+  #     Name: PatOrg1MSP
 
-      ID: PatOrg1MSP
+  #     ID: PatOrg1MSP
 
-      MSPDir: ../crypto-config/peerOrganizations/patorg1.example3.com/msp
+  #     MSPDir: ../crypto-config/peerOrganizations/patorg1.example3.com/msp
 
-      Policies:
+  #     Policies:
 
-        # Reading of Data of patient permission is given to the doctor who is the peer of that patient ( doctor who is handling that patient)
+  #       # Reading of Data of patient permission is given to the doctor who is the peer of that patient ( doctor who is handling that patient)
 
-        Readers:
-          Type: Signature
-          Rule: "OR('PatOrg1MSP.admin', 'PatOrg1MSP.peer', 'PatOrg1MSP.client', 'DocOrg1MSP.peer')"
-        Writers:
-          Type: Signature
-          Rule: "OR('PatOrg1MSP.admin', 'PatOrg1MSP.client')"
-        Admins:
-          Type: Signature
-          Rule: "OR('PatOrg1MSP.admin')"
+  #       Readers:
+  #         Type: Signature
+  #         Rule: "OR('PatOrg1MSP.admin', 'PatOrg1MSP.peer', 'PatOrg1MSP.client', 'DocOrg1MSP.peer')"
+  #       Writers:
+  #         Type: Signature
+  #         Rule: "OR('PatOrg1MSP.admin', 'PatOrg1MSP.client')"
+  #       Admins:
+  #         Type: Signature
+  #         Rule: "OR('PatOrg1MSP.admin')"
 
-        # For Endorsement, both the patient and the Doctor has to validate that data from the sensor.
+  #       # For Endorsement, both the patient and the Doctor has to validate that data from the sensor.
 
-        Endorsement:
-          Type: Signature
-          Rule: "AND('PatOrg1MSP.client','DocOrg1MSP.peer')"
-
-#-----------------------------------------------------------------------------------
-
+  #       Endorsement:
+  #         Type: Signature
+  #         Rule: "AND('PatOrg1MSP.client','DocOrg1MSP.peer')"
   
 Capabilities:
   
@@ -170,7 +167,7 @@ Orderer: &OrdererDefaults
     
   Addresses:
     - mngorderer.example.com:7050
-    - patdocorderer.example2.com:7051
+    # - patdocorderer.example2.com:7051
 
   EtcdRaft:
     
@@ -181,10 +178,10 @@ Orderer: &OrdererDefaults
         ServerTLSCert: ../crypto-config/ordererOrganizations/example.com/orderers/mngorderer.example.com/tls/server.crt
         ClientTLSCert: ../crypto-config/ordererOrganizations/example.com/orderers/mngorderer.example.com/tls/server.crt
       
-      - Host: patdocorderer.example2.com
-        Port: 7051
-        ServerTLSCert: ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/tls/server.crt
-        ClientTLSCert: ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/tls/server.crt
+      # - Host: patdocorderer.example2.com
+      #   Port: 7051
+      #   ServerTLSCert: ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/tls/server.crt
+      #   ClientTLSCert: ../crypto-config/ordererOrganizations/example2.com/orderers/patdocorderer.example2.com/tls/server.crt
 
   BatchTimeout: 2s
 
@@ -229,18 +226,18 @@ Channel: &ChannelDefaults
 
 Profiles:
 
-  OrgsApplicationGenesis:
+  ManagementArtifactsGenesis:
     <<: *ChannelDefaults
     Orderer:
       <<: *OrdererDefaults
       Organizations:
         - *Orderer1Org
-        - *Orderer2Org
+        # - *Orderer2Org
       Capabilities: *OrdererCapabilities
     Application:
       <<: *ApplicationDefaults
       Organizations:
         - *MngOrg1
-        - *DocOrg1
-        - *PatOrg1
+        # - *DocOrg1
+        # - *PatOrg1
       Capabilities: *ApplicationCapabilities
